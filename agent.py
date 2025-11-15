@@ -93,8 +93,10 @@ def truncate_messages(messages, max_tokens=10000):
 
 
 # Update your chat_node function in agent.py:
-def chat_node(state: ChatState, config: Any):
+def chat_node(state: ChatState, config: Any = None):
     """Main chat processing node with token management"""
+    if config is None:
+        config = {}
     messages = state.get("messages", [])
     thread_id = config['configurable'].get('thread_id')
     

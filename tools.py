@@ -167,36 +167,68 @@ def get_weather(city: str) -> str:
     except Exception as e:
         return f"⚠️ Error getting weather for {city}: {str(e)}"
 
+
+# ============ Tool 7: Language Translation ============
 @tool
 def translate_text(text: str, target_language: str = "en", source_language: str = "auto") -> dict:
     """
-    Translate text to any language using Google Translate.
+    Translate text between languages using Google Translate.
     
     Args:
         text: Text to translate
-        target_language: Target language code (en, ur, ar, es, fr, etc.)
+        target_language: Target language code. Common codes:
+            - en (English)
+            - ur (Urdu)
+            - ar (Arabic)
+            - es (Spanish)
+            - fr (French)
+            - de (German)
+            - zh-cn (Chinese)
+            - ja (Japanese)
+            - hi (Hindi)
         source_language: Source language (default: auto-detect)
     
     Examples:
-        - "Translate 'Hello' to Urdu"
-        - "Translate 'السلام عليكم' to English"
-        - "Convert this to Spanish: How are you?"
+        - "Translate 'Hello, how are you?' to Urdu"
+        - "Translate 'یہ کیسا ہے' to English"
+        - "Convert 'Bonjour' to English"
     """
-    from googletrans import Translator
-    
     try:
+        from googletrans import Translator
+        
         translator = Translator()
         result = translator.translate(text, dest=target_language, src=source_language)
         
+        # Language name mapping for better UX
+        lang_names = {
+            'en': 'English', 'ur': 'Urdu', 'ar': 'Arabic',
+            'es': 'Spanish', 'fr': 'French', 'de': 'German',
+            'zh-cn': 'Chinese', 'ja': 'Japanese', 'hi': 'Hindi',
+            'tr': 'Turkish', 'ru': 'Russian', 'it': 'Italian'
+        }
+        
+        source_name = lang_names.get(result.src, result.src)
+        target_name = lang_names.get(target_language, target_language)
+        
         return {
-            "original": text,
-            "translated": result.text,
-            "source_language": result.src,
-            "target_language": target_language,
-            "pronunciation": result.pronunciation if result.pronunciation else ""
+            "original_text": text,
+            "translated_text": result.text,
+            "source_language": f"{source_name} ({result.src})",
+            "target_language": f"{target_name} ({target_language})",
+            "pronunciation": result.pronunciation if result.pronunciation else None
+        }
+        
+    except ImportError:
+        return {
+            "error": "Translation library not installed. Run: pip install googletrans==4.0.0-rc1"
         }
     except Exception as e:
-        return {"error": f"Translation error: {str(e)}"}
+        return {"error": f"Translation failed: {str(e)}"}
+
+
+# ============ Import Document Tool ============
+from document_analyzer import ask_document
+
 
 # ============ Export All Tools ============
 all_tools = [
@@ -206,5 +238,6 @@ all_tools = [
     get_stock_price,
     search_wikipedia,
     get_weather,
-    translate_text
+    translate_text,
+    ask_document  # PDF/Document Q&A
 ]
